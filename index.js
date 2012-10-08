@@ -1,2 +1,2 @@
-module.exports = requre('./lib/shoes');
+module.exports = require('./lib/shoes');
 
