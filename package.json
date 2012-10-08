@@ -11,7 +11,9 @@
     "express": "2.5.x",
     "swig": "0.12.x",
     "less": "1.3.x",
-    "uglify-js": "1.2.x"
+    "uglify-js": "1.2.x",
+    "mkdirp": "*",
+    "sslog": "*"
   },
   "devDependencies": {
     "mocha": "*",
