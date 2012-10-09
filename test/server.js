@@ -110,7 +110,6 @@ describe('Server', function () {
         });
     });
     it('should give views access to helpers', function (done) {
-        return done();
         var url = create('srv6')
           , app = get(url);
         app.get('/', function (request, response) {
@@ -138,6 +137,7 @@ describe('Server', function () {
             request(url + 'css/style.css', function (err, res, body) {
                 assert(!err, err);
                 assert.equal(500, res.statusCode);
+                close(url);
                 done();
             });
         });
@@ -153,6 +153,7 @@ describe('Server', function () {
             assert(!err, err);
             assert.equal(404, res.statusCode);
             assert.equal('not found', body);
+            close(url);
             done();
         });
     });
@@ -170,6 +171,7 @@ describe('Server', function () {
             assert(!err, err);
             assert.equal(500, res.statusCode);
             assert.equal('server error foo', body);
+            close(url);
             done();
         });
     });
@@ -190,6 +192,7 @@ describe('Server', function () {
                             assert.equal(body, 'p {\n  color: green;\n}\nbody {\n  color: red;\n}\n');
                             fs.writeFile(__dirname + '/data/srv11/public/css/foo/test.less'
                                     , 'p { color: blue; }\n', function () {
+                                close(url);
                                 done();
                             });
                         });
@@ -216,6 +219,7 @@ describe('Server', function () {
                             assert.equal(body, 'var bar = 23\n');
                             fs.writeFile(__dirname + '/data/srv12/public/js/script.js'
                                     , 'var foo = 1\n', function () {
+                                close(url);
                                 done();
                             });
                         });
@@ -250,6 +254,7 @@ describe('Server', function () {
                     request({ url: url, followRedirect: false, headers: { 'User-Agent': ua3 }}, function (err, res, body) {
                         assert(!err, err);
                         assert.equal(res.header('X-Accel-Expires'), 0);
+                        close(url);
                         done();
                     });
                 });
