@@ -1,0 +1,260 @@
+var assert = require('assert')
+  , fs = require('fs')
+  , path = require('path')
+  , Server = require('../').Server
+  , request = require('request')
+  , next_port = 10001
+  , servers = {};
+
+function create(dir, config, with_server) {
+    var server = new Server(__dirname + '/data/' + dir, config);
+    if (with_server) {
+        with_server(server);
+    }
+    var app = server.create()
+      , port = next_port++
+      , url = 'http://localhost:' + port + '/';
+    servers[url] = app.listen(port);
+    return url;
+}
+
+function close(url) {
+    var app = get(url);
+    app.close();
+    delete servers[url];
+}
+
+function get(url) {
+    if (!(url in servers)) {
+        throw new Error(url + ' not found');
+    }
+    return servers[url];
+}
+
+describe('Server', function () {
+    it('should render swig templates', function (done) {
+        var url = create('srv1')
+          , app = get(url);
+        app.get('/', function (request, response) {
+            response.render('index', { data: ['a','b','c' ] });
+        });
+        request(url, function (err, res, body) {
+            assert(!err, err);
+            assert.equal('abc', body);
+            close(url);
+            done();
+        });
+    });
+    it('should compile less css', function (done) {
+        var url = create('srv2');
+        fs.unlink(__dirname + '/data/srv2/compiled/css/style.css', function () {
+            request(url + 'css/style.css', function (err, res, body) {
+                assert(!err, err);
+                assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
+                request(url + 'css/89a7sd/style.css', function (err, res, body) {
+                    assert(!err, err);
+                    assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
+                    close(url);
+                    (fs.exists || path.exists)(__dirname + '/data/srv2/compiled/css/style.css', function (exists) {
+                        assert(exists);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+    it('should minify less css when config.minify is set', function (done) {
+        var url = create('srv3', { minify: true });
+        fs.unlink(__dirname + '/data/srv3/compiled/css/style.css', function () {
+            request(url + 'css/style.css', function (err, res, body) {
+                assert(!err, err);
+                assert.equal(body, 'p{color:blue;}\nbody{color:red;}\n');
+                close(url);
+                (fs.exists || path.exists)(__dirname + '/data/srv3/compiled/css/style.css', function (exists) {
+                    assert(exists);
+                    done();
+                });
+            });
+        });
+    });
+    it('should compile js', function (done) {
+        var url = create('srv4');
+        fs.unlink(__dirname + '/data/srv4/compiled/js/script.js', function () {
+            request(url + 'js/script.js', function (err, res, body) {
+                assert(!err, err);
+                assert.equal(body, 'var foo = 2 + 2;\n');
+                request(url + 'js/asdfkj/script.js', function (err, res, body) {
+                    assert(!err, err);
+                    assert.equal(body, 'var foo = 2 + 2;\n');
+                    close(url);
+                    (fs.exists || path.exists)(__dirname + '/data/srv4/compiled/js/script.js', function (exists) {
+                        assert(exists);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+    it('should minify js', function (done) {
+        var url = create('srv5', { minify: true });
+        fs.unlink(__dirname + '/data/srv5/compiled/js/script.js', function () {
+            request(url + 'js/script.js', function (err, res, body) {
+                assert(!err, err);
+                assert.equal(body, 'var foo=4');
+                close(url);
+                (fs.exists || path.exists)(__dirname + '/data/srv5/compiled/js/script.js', function (exists) {
+                    assert(exists);
+                    done();
+                });
+            });
+        });
+    });
+    it('should give views access to helpers', function (done) {
+        return done();
+        var url = create('srv6')
+          , app = get(url);
+        app.get('/', function (request, response) {
+            response.render('index', { title: ' HEY THERE!' });
+        });
+        request(url, function (err, res, body) {
+            assert(!err, err);
+            assert.equal('hey-there', body);
+            close(url);
+            done();
+        });
+    });
+    it('should gracefully handle bad js', function (done) {
+        var url = create('srv7', { minify: true, production: true });
+        request(url + 'js/script.js', function (err, res, body) {
+            assert(!err, err);
+            assert.equal(500, res.statusCode);
+            close(url);
+            done();
+        });
+    });
+    it('should catch less compiler errors', function (done) {
+        var url = create('srv8', { production: true });
+        fs.unlink(__dirname + '/data/srv8/compiled/css/style.css', function () {
+            request(url + 'css/style.css', function (err, res, body) {
+                assert(!err, err);
+                assert.equal(500, res.statusCode);
+                done();
+            });
+        });
+    });
+    it('should render 404 views', function (done) {
+        var url = create('srv9', null, function (server) {
+                server.notFoundHandler(function (request, response) {
+                    response.send('not found', 404);
+                });
+            })
+          , app = get(url);
+        request(url + 'notarealroute', function (err, res, body) {
+            assert(!err, err);
+            assert.equal(404, res.statusCode);
+            assert.equal('not found', body);
+            done();
+        });
+    });
+    it('should render 500 views', function (done) {
+        var url = create('srv9', { production: true }, function (server) {
+                server.errorHandler(function (msg, stack, request, response) {
+                    response.send('server error ' + msg, 500);
+                });
+            })
+          , app = get(url);
+        get(url).get('/throwplz', function () {
+            throw new Error('foo');
+        });
+        request(url + 'throwplz', function (err, res, body) {
+            assert(!err, err);
+            assert.equal(500, res.statusCode);
+            assert.equal('server error foo', body);
+            done();
+        });
+    });
+    it('should hot reload less files', function (done) {
+        fs.writeFileSync(__dirname + '/data/srv11/public/css/foo/test.less', 'p { color: blue; }\n');
+        var url = create('srv11');
+        setTimeout(function () {
+        fs.unlink(__dirname + '/data/srv11/compiled/css/style.css', function () {
+            request(url + 'css/style.css', function (err, res, body) {
+                assert(!err, err);
+                assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
+                fs.writeFile(__dirname + '/data/srv11/public/css/foo/test.less'
+                        , 'p { color: green; }\n', function (err) {
+                    assert(!err, err);
+                    setTimeout(function () {
+                        request(url + 'css/style.css', function (err, res, body) {
+                            assert(!err, err);
+                            assert.equal(body, 'p {\n  color: green;\n}\nbody {\n  color: red;\n}\n');
+                            fs.writeFile(__dirname + '/data/srv11/public/css/foo/test.less'
+                                    , 'p { color: blue; }\n', function () {
+                                done();
+                            });
+                        });
+                    }, 500);
+                });
+            });
+        });
+        }, 100);
+    });
+    it('should hot reload js files', function (done) {
+        fs.writeFileSync(__dirname + '/data/srv12/public/js/script.js', 'var foo = 1\n');
+        var url = create('srv12');
+        setTimeout(function () {
+        fs.unlink(__dirname + '/data/srv12/compiled/js/script.js', function () {
+            request(url + 'js/script.js', function (err, res, body) {
+                assert(!err, err);
+                assert.equal(body, 'var foo = 1\n');
+                fs.writeFile(__dirname + '/data/srv12/public/js/script.js'
+                        , 'var bar = 23\n', function (err) {
+                    assert(!err, err);
+                    setTimeout(function () {
+                        request(url + 'js/script.js', function (err, res, body) {
+                            assert(!err, err);
+                            assert.equal(body, 'var bar = 23\n');
+                            fs.writeFile(__dirname + '/data/srv12/public/js/script.js'
+                                    , 'var foo = 1\n', function () {
+                                done();
+                            });
+                        });
+                    }, 500);
+                });
+            });
+        });
+        }, 100);
+    });
+    it('should redirect <=IE8 users to an upgrade page', function (done) {
+        var url = create('srv13', null, function (server) {
+            server.redirectUseragent(/MSIE [5-8]/, '/upgrade');
+        });
+        get(url).get('/', function (request, response) {
+            response.render('index');
+        });
+        get(url).get('/upgrade', function (request, response) {
+            response.render('ie_upgrade');
+        });
+        var ua1 = 'Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)'
+          , ua2 = 'Mozilla/4.0 (Windows; MSIE 7.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)'
+          , ua3 = 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0;)';
+        request({ url: url, headers: { 'User-Agent': ua1 }}, function (err, res, body) {
+            assert(!err, err);
+            assert.equal('hey', body);
+            request({ url: url, headers: { 'User-Agent': ua2 }}, function (err, res, body) {
+                assert(!err, err);
+                assert.equal('upgrade plz', body);
+                request({ url: url, headers: { 'User-Agent': ua3 }}, function (err, res, body) {
+                    assert(!err, err);
+                    assert.equal('upgrade plz', body);
+                    request({ url: url, followRedirect: false, headers: { 'User-Agent': ua3 }}, function (err, res, body) {
+                        assert(!err, err);
+                        assert.equal(res.header('X-Accel-Expires'), 0);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+});
+
