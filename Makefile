@@ -8,6 +8,11 @@ ifdef TEST
 	REPORTER=list
 endif
 
+dependencies:
+	npm install -d
+
+deps: dependencies
+
 test:
 	@mkdir -p ./test/tmp
 	@DISABLE_LOGGING=1 ./node_modules/mocha/bin/mocha \
