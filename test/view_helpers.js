@@ -25,7 +25,15 @@ describe('View Helpers', function () {
         assert.equal('foo', helpers.slug('foo'));
         assert.equal('foo-bar', helpers.slug('foo      bar'));
         assert.equal('foo-bar', helpers.slug('foo      bar.'));
-        assert.equal('87-foo', helpers.slug(' ~87   foo  !!!  '))
+        assert.equal('87-foo', helpers.slug(' ~87   foo  !!!  '));
+        done();
+    });
+    it('should create canonical urls', function (done) {
+        assert.equal(helpers.canonical('/foo/bar?baz'), '/foo/bar');
+        assert.equal(helpers.canonical('http://www.example.com/foo/bar?baz'), 'http://www.example.com/foo/bar');
+        assert.equal(helpers.canonical('www.example.com/foo/bar?baz'), 'www.example.com/foo/bar');
+        assert.equal(helpers.canonical('/foo/bar?page=1&baz', 'page'), '/foo/bar?page=1');
+        assert.equal(helpers.canonical('/foo/bar?page=1&baz', ['page']), '/foo/bar?page=1');
         done();
     });
 });
