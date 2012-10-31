@@ -9,7 +9,7 @@ ifdef TEST
 endif
 
 dependencies:
-	npm install -d
+	npm install -s -d
 
 deps: dependencies
 
