@@ -63,8 +63,8 @@ describe('Server', function () {
             });
         });
     });
-    it('should minify less css when config.minify is set', function (done) {
-        var url = create('srv3', { minify: true });
+    it('should minify css in production', function (done) {
+        var url = create('srv3', { production: true });
         fs.unlink(__dirname + '/data/srv3/compiled/css/style.css', function () {
             request(url + 'css/style.css', function (err, res, body) {
                 assert(!err, err);
@@ -95,8 +95,8 @@ describe('Server', function () {
             });
         });
     });
-    it('should minify js', function (done) {
-        var url = create('srv5', { minify: true });
+    it('should minify js in production', function (done) {
+        var url = create('srv5', { production: true });
         fs.unlink(__dirname + '/data/srv5/compiled/js/script.js', function () {
             request(url + 'js/script.js', function (err, res, body) {
                 assert(!err, err);
