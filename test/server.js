@@ -32,7 +32,7 @@ function get(url) {
 }
 
 describe('Server', function () {
-    it('should render swig templates', function (done) {
+    it('should render nunjucks templates', function (done) {
         var url = create('srv1')
           , app = get(url);
         app.get('/', function (request, response) {
@@ -40,7 +40,7 @@ describe('Server', function () {
         });
         request(url, function (err, res, body) {
             assert(!err, err);
-            assert.equal('abc', body);
+            assert.equal('abc\n', body);
             close(url);
             done();
         });
@@ -117,7 +117,7 @@ describe('Server', function () {
         });
         request(url, function (err, res, body) {
             assert(!err, err);
-            assert.equal('hey-there', body);
+            assert.equal('hey-there\n', body);
             close(url);
             done();
         });
@@ -244,13 +244,13 @@ describe('Server', function () {
           , ua3 = 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0;)';
         request({ url: url, headers: { 'User-Agent': ua1 }}, function (err, res, body) {
             assert(!err, err);
-            assert.equal('hey', body);
+            assert.equal('hey\n', body);
             request({ url: url, headers: { 'User-Agent': ua2 }}, function (err, res, body) {
                 assert(!err, err);
-                assert.equal('upgrade plz', body);
+                assert.equal('upgrade plz\n', body);
                 request({ url: url, headers: { 'User-Agent': ua3 }}, function (err, res, body) {
                     assert(!err, err);
-                    assert.equal('upgrade plz', body);
+                    assert.equal('upgrade plz\n', body);
                     request({ url: url, followRedirect: false, headers: { 'User-Agent': ua3 }}, function (err, res, body) {
                         assert(!err, err);
                         assert.equal(res.header('X-Accel-Expires'), 0);

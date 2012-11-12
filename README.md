@@ -3,7 +3,7 @@
 ### Features
 
 - [Express](https://github.com/visionmedia/express) bindings
-- [Swig](https://github.com/paularmstrong/swig) templating
+- [Nunjucks](https://github.com/jlongster/nunjucks) templating
 - CSS compilation, minification and hot-reloading (using [LESS](http://lesscss.org/))
 - JS compilation, minification and hot-reloading (using [uglifyjs](https://github.com/mishoo/UglifyJS))
 - Environment configuration
