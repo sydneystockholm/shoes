@@ -14,13 +14,14 @@ function create(dir, config, with_server) {
     var app = server.create()
       , port = next_port++
       , url = 'http://localhost:' + port + '/';
-    servers[url] = app.listen(port);
+    servers[url] = app;
+    app.server = app.listen(port);
     return url;
 }
 
 function close(url) {
     var app = get(url);
-    app.close();
+    app.server.close();
     delete servers[url];
 }
 
@@ -253,7 +254,7 @@ describe('Server', function () {
                     assert.equal('upgrade plz\n', body);
                     request({ url: url, followRedirect: false, headers: { 'User-Agent': ua3 }}, function (err, res, body) {
                         assert(!err, err);
-                        assert.equal(res.header('X-Accel-Expires'), 0);
+                        assert.equal(res.headers['x-accel-expires'], 0);
                         close(url);
                         done();
                     });
