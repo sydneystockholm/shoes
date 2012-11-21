@@ -47,18 +47,23 @@ describe('Server', function () {
         });
     });
     it('should compile less css', function (done) {
-        var url = create('srv2');
+        var url = create('srv2')
+          , app = get(url);
         fs.unlink(__dirname + '/data/srv2/compiled/css/style.css', function () {
             request(url + 'css/style.css', function (err, res, body) {
                 assert(!err, err);
                 assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
-                request(url + 'css/89a7sd/style.css', function (err, res, body) {
+                request(url + 'css/' + app.nonce + '/style.css', function (err, res, body) {
                     assert(!err, err);
                     assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
-                    close(url);
                     (fs.exists || path.exists)(__dirname + '/data/srv2/compiled/css/style.css', function (exists) {
                         assert(exists);
-                        done();
+                        request(url + 'css/123987/style.css', function (err, res, body) {
+                            assert(!err, err);
+                            assert.equal(res.statusCode, 404);
+                            close(url);
+                            done();
+                        });
                     });
                 });
             });
@@ -79,12 +84,13 @@ describe('Server', function () {
         });
     });
     it('should compile js', function (done) {
-        var url = create('srv4');
+        var url = create('srv4')
+          , app = get(url);
         fs.unlink(__dirname + '/data/srv4/compiled/js/script.js', function () {
             request(url + 'js/script.js', function (err, res, body) {
                 assert(!err, err);
                 assert.equal(body, 'var foo = 2 + 2;\n');
-                request(url + 'js/asdfkj/script.js', function (err, res, body) {
+                request(url + 'js/' + app.nonce + '/script.js', function (err, res, body) {
                     assert(!err, err);
                     assert.equal(body, 'var foo = 2 + 2;\n');
                     close(url);
