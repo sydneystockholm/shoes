@@ -15,25 +15,23 @@ describe('Environment', function () {
         });
         done();
     });
-    it('should load the "default" namespace if no environment is specified', function (done) {
-        var c = env.loadConfig(__dirname + '/data/default.json');
+    it('should load json config', function (done) {
+        var c = new Environment().loadConfig(__dirname + '/data/env.json');
         assert.equal('bar', c.foo);
         done();
     });
-    it('should load environment config', function (done) {
-        var c = new Environment('dev').loadConfig(__dirname + '/data/env.json');
+    it('should load js config', function (done) {
+        var c = new Environment().loadConfig(__dirname + '/data/env.js');
         assert.equal('bar', c.foo);
         done();
     });
-    it('should merge default config', function (done) {
-        var c = new Environment('dev').loadConfig(__dirname + '/data/env2.json');
+    it('should recursively merge default config', function (done) {
+        var c = new Environment().loadConfig(__dirname + '/data/env2.json', {
+            a: 'a', c: 'd', obj: { a: 'a', c: 'd' }
+        });
         assert.equal('a', c.a);
         assert.equal('b', c.b);
         assert.equal('c', c.c);
-        done();
-    });
-    it('should recursively merge objects', function (done) {
-        var c = new Environment('dev').loadConfig(__dirname + '/data/env2.json', 'dev');
         assert.equal('a', c.obj.a);
         assert.equal('b', c.obj.b);
         assert.equal('c', c.obj.c);
