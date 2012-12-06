@@ -1,11 +1,11 @@
-**shoes** helps you get a node.js app up and running quickly.
+# Shoes
 
-### Features
+**Shoes** helps you get a node.js app up and running quickly.
 
 - [Express](https://github.com/visionmedia/express) bindings
 - [Nunjucks](https://github.com/jlongster/nunjucks) templating
 - CSS compilation, minification and hot-reloading (using [LESS](http://lesscss.org/))
-- JS compilation, minification and hot-reloading (using [uglifyjs](https://github.com/mishoo/UglifyJS))
+- JS minification and hot-reloading (using [uglifyjs](https://github.com/mishoo/UglifyJS))
 - Environment configuration
 - Higher-level 404/500 handlers for express
 - PID files
@@ -17,6 +17,24 @@
 
 ```bash
 $ npm install shoes
+```
+
+### Documentation
+
+See the [wiki](https://github.com/sydneystockholm/shoes/wiki/Shoes).
+
+### Tests
+
+To run the test suite
+
+```bash
+$ make check
+```
+
+To increase test verbosity
+
+```bash
+$ V=1 make check
 ```
 
 ### License (MIT)
