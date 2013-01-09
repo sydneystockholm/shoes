@@ -268,5 +268,17 @@ describe('Server', function () {
             });
         });
     });
+    it('should send the X-UA-Compatible header', function (done) {
+        var url = create('srv13');
+        get(url).get('/', function (request, response) {
+            response.render('index');
+        });
+        request({ url: url }, function (err, res, body) {
+            assert(!err, err);
+            assert.equal(res.headers['x-ua-compatible'], 'IE=edge,chrome=1');
+            close(url);
+            done();
+        });
+    });
 });
 
