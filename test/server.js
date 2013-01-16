@@ -280,5 +280,18 @@ describe('Server', function () {
             done();
         });
     });
+    it('should compile less css that imports from a parent directory', function (done) {
+        var url = create('srv14', { production: true })
+          , app = get(url);
+        fs.unlink(__dirname + '/data/srv14/compiled/css/foo/foo.css', function () {
+            request(url + 'css/' + app.nonce + '/foo/foo.css', function (err, res, body) {
+                assert(!err, err);
+                assert.equal(res.statusCode, 200);
+                assert.equal(body, 'body{color:red;}\na{color:green;}\n');
+                close(url);
+                done();
+            });
+        });
+    });
 });
 
