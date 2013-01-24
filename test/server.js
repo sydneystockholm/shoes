@@ -14,8 +14,8 @@ function create(dir, config, with_server) {
     var app = server.create()
       , port = next_port++
       , url = 'http://localhost:' + port + '/';
-    servers[url] = app;
-    app.server = app.listen(port);
+    app.server = server.listen(port);
+    servers[url] = server.app;
     return url;
 }
 
