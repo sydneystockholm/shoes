@@ -1,5 +1,5 @@
 { "name"    : "shoes",
-  "version" : "0.2.18",
+  "version" : "0.2.19",
   "homepage": "http://github.com/sydneystockholm/shoes",
   "main"    : "index.js",
   "repository": {
