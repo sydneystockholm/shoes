@@ -199,11 +199,17 @@ describe('Server', function () {
                             assert.equal(body, 'p {\n  color: green;\n}\nbody {\n  color: red;\n}\n');
                             fs.writeFile(__dirname + '/data/srv11/public/css/foo/test.less'
                                     , 'p { color: blue; }\n', function () {
-                                close(url);
-                                done();
+                                setTimeout(function () {
+                                    request(url + 'css/style.css', function (err, res, body) {
+                                        assert(!err, err);
+                                        assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
+                                        close(url);
+                                        done();
+                                    });
+                                }, 100);
                             });
                         });
-                    }, 500);
+                    }, 100);
                 });
             });
         });
@@ -226,11 +232,17 @@ describe('Server', function () {
                             assert.equal(body, 'var bar = 23\n');
                             fs.writeFile(__dirname + '/data/srv12/public/js/script.js'
                                     , 'var foo = 1\n', function () {
-                                close(url);
-                                done();
+                                setTimeout(function () {
+                                    request(url + 'js/script.js', function (err, res, body) {
+                                        assert(!err, err);
+                                        assert.equal(body, 'var foo = 1\n');
+                                        close(url);
+                                        done();
+                                    });
+                                }, 100);
                             });
                         });
-                    }, 500);
+                    }, 100);
                 });
             });
         });
