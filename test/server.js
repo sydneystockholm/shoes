@@ -74,7 +74,7 @@ describe('Server', function () {
         fs.unlink(__dirname + '/data/srv3/compiled/css/style.css', function () {
             request(url + 'css/style.css', function (err, res, body) {
                 assert(!err, err);
-                assert.equal(body, 'p{color:blue;}\nbody{color:red;}\n');
+                assert.equal(body, 'p{color:blue}\nbody{color:red}\n');
                 close(url);
                 (fs.exists || path.exists)(__dirname + '/data/srv3/compiled/css/style.css', function (exists) {
                     assert(exists);
@@ -107,7 +107,7 @@ describe('Server', function () {
         fs.unlink(__dirname + '/data/srv5/compiled/js/script.js', function () {
             request(url + 'js/script.js', function (err, res, body) {
                 assert(!err, err);
-                assert.equal(body, 'var foo=4');
+                assert.equal(body, 'var foo=4;');
                 close(url);
                 (fs.exists || path.exists)(__dirname + '/data/srv5/compiled/js/script.js', function (exists) {
                     assert(exists);
@@ -299,7 +299,7 @@ describe('Server', function () {
             request(url + 'css/' + app.nonce + '/foo/foo.css', function (err, res, body) {
                 assert(!err, err);
                 assert.equal(res.statusCode, 200);
-                assert.equal(body, 'body{color:red;}\na{color:green;}\n');
+                assert.equal(body, 'body{color:red}\na{color:green}\n');
                 close(url);
                 done();
             });
