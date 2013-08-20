@@ -8,14 +8,14 @@
   },
   "engines": { "node": ">= 0.8" },
   "dependencies": {
-    "express": "latest",
-    "nunjucks": "latest",
-    "less": "latest",
-    "uglify-js": "latest",
-    "mkdirp": "latest",
-    "sslog": "latest",
-    "rimraf": "latest",
-    "connect-flash": "latest"
+    "express": "~ 3",
+    "nunjucks": ">= 0.1.10",
+    "less": ">= 1.4.2",
+    "uglify-js": "~ 2",
+    "mkdirp": "*",
+    "sslog": "*",
+    "rimraf": "*",
+    "connect-flash": "*"
   },
   "devDependencies": {
     "mocha": "latest",
