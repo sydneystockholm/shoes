@@ -16,7 +16,6 @@ deps: dependencies
 test:
 	@mkdir -p ./test/tmp
 	@DISABLE_LOGGING=1 ./node_modules/mocha/bin/mocha \
-	    --ignore-leaks \
 		--reporter ${REPORTER} \
 		-s 200 \
 		-t 2000 $T

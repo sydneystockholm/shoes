@@ -8,17 +8,17 @@
   },
   "engines": { "node": ">= 0.8" },
   "dependencies": {
-    "express": ">= 3",
-    "nunjucks": ">= 0.1.6",
-    "less": "1.3.x",
-    "uglify-js": "1.3.x",
-    "mkdirp": "*",
-    "sslog": "*",
-    "rimraf": "*",
-    "connect-flash": "*"
+    "express": "latest",
+    "nunjucks": "latest",
+    "less": "latest",
+    "uglify-js": "latest",
+    "mkdirp": "latest",
+    "sslog": "latest",
+    "rimraf": "latest",
+    "connect-flash": "latest"
   },
   "devDependencies": {
-    "mocha": "*",
-    "request": "2.9.x"
+    "mocha": "latest",
+    "request": "latest"
   }
 }
