@@ -27,7 +27,9 @@ describe('Environment', function () {
     });
     it('should recursively merge default config', function (done) {
         var c = new Environment().loadConfig(__dirname + '/data/env2.json', {
-            a: 'a', c: 'd', obj: { a: 'a', c: 'd' }
+            a: 'a'
+          , c: 'd'
+          , obj: { a: 'a', c: 'd' }
         });
         assert.equal('a', c.a);
         assert.equal('b', c.b);

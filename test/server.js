@@ -37,7 +37,7 @@ describe('Server', function () {
         var url = create('srv1')
           , app = get(url);
         app.get('/', function (request, response) {
-            response.render('index', { data: ['a','b','c' ] });
+            response.render('index', { data: ['a', 'b', 'c'] });
         });
         request(url, function (err, res, body) {
             assert(!err, err);
@@ -58,7 +58,7 @@ describe('Server', function () {
                     assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
                     (fs.exists || path.exists)(__dirname + '/data/srv2/compiled/css/style.css', function (exists) {
                         assert(exists);
-                        request(url + 'css/123987/style.css', function (err, res, body) {
+                        request(url + 'css/123987/style.css', function (err, res) {
                             assert(!err, err);
                             assert.equal(res.statusCode, 404);
                             close(url);
@@ -131,7 +131,7 @@ describe('Server', function () {
     });
     it('should gracefully handle bad js', function (done) {
         var url = create('srv7', { minify: true, production: true });
-        request(url + 'js/script.js', function (err, res, body) {
+        request(url + 'js/script.js', function (err, res) {
             assert(!err, err);
             assert.equal(500, res.statusCode);
             close(url);
@@ -141,7 +141,7 @@ describe('Server', function () {
     it('should catch less compiler errors', function (done) {
         var url = create('srv8', { production: true });
         fs.unlink(__dirname + '/data/srv8/compiled/css/style.css', function () {
-            request(url + 'css/style.css', function (err, res, body) {
+            request(url + 'css/style.css', function (err, res) {
                 assert(!err, err);
                 assert.equal(500, res.statusCode);
                 close(url);
@@ -151,11 +151,10 @@ describe('Server', function () {
     });
     it('should render 404 views', function (done) {
         var url = create('srv9', null, function (server) {
-                server.notFoundHandler(function (request, response) {
-                    response.send('not found', 404);
-                });
-            })
-          , app = get(url);
+            server.notFoundHandler(function (request, response) {
+                response.send('not found', 404);
+            });
+        });
         request(url + 'notarealroute', function (err, res, body) {
             assert(!err, err);
             assert.equal(404, res.statusCode);
@@ -166,11 +165,10 @@ describe('Server', function () {
     });
     it('should render 500 views', function (done) {
         var url = create('srv9', { production: true }, function (server) {
-                server.errorHandler(function (msg, stack, request, response) {
-                    response.send('server error ' + msg, 500);
-                });
-            })
-          , app = get(url);
+            server.errorHandler(function (msg, stack, request, response) {
+                response.send('server error ' + msg, 500);
+            });
+        });
         get(url).get('/throwplz', function () {
             throw new Error('foo');
         });
@@ -186,66 +184,66 @@ describe('Server', function () {
         fs.writeFileSync(__dirname + '/data/srv11/public/css/foo/test.less', 'p { color: blue; }\n');
         var url = create('srv11');
         setTimeout(function () {
-        fs.unlink(__dirname + '/data/srv11/compiled/css/style.css', function () {
-            request(url + 'css/style.css', function (err, res, body) {
-                assert(!err, err);
-                assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
-                fs.writeFile(__dirname + '/data/srv11/public/css/foo/test.less'
-                        , 'p { color: green; }\n', function (err) {
+            fs.unlink(__dirname + '/data/srv11/compiled/css/style.css', function () {
+                request(url + 'css/style.css', function (err, res, body) {
                     assert(!err, err);
-                    setTimeout(function () {
-                        request(url + 'css/style.css', function (err, res, body) {
-                            assert(!err, err);
-                            assert.equal(body, 'p {\n  color: green;\n}\nbody {\n  color: red;\n}\n');
-                            fs.writeFile(__dirname + '/data/srv11/public/css/foo/test.less'
-                                    , 'p { color: blue; }\n', function () {
-                                setTimeout(function () {
-                                    request(url + 'css/style.css', function (err, res, body) {
-                                        assert(!err, err);
-                                        assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
-                                        close(url);
-                                        done();
-                                    });
-                                }, 100);
+                    assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
+                    fs.writeFile(__dirname + '/data/srv11/public/css/foo/test.less'
+                            , 'p { color: green; }\n', function (err) {
+                        assert(!err, err);
+                        setTimeout(function () {
+                            request(url + 'css/style.css', function (err, res, body) {
+                                assert(!err, err);
+                                assert.equal(body, 'p {\n  color: green;\n}\nbody {\n  color: red;\n}\n');
+                                fs.writeFile(__dirname + '/data/srv11/public/css/foo/test.less'
+                                        , 'p { color: blue; }\n', function () {
+                                    setTimeout(function () {
+                                        request(url + 'css/style.css', function (err, res, body) {
+                                            assert(!err, err);
+                                            assert.equal(body, 'p {\n  color: blue;\n}\nbody {\n  color: red;\n}\n');
+                                            close(url);
+                                            done();
+                                        });
+                                    }, 100);
+                                });
                             });
-                        });
-                    }, 100);
+                        }, 100);
+                    });
                 });
             });
-        });
         }, 100);
     });
     it('should hot reload js files', function (done) {
         fs.writeFileSync(__dirname + '/data/srv12/public/js/script.js', 'var foo = 1\n');
         var url = create('srv12');
         setTimeout(function () {
-        fs.unlink(__dirname + '/data/srv12/compiled/js/script.js', function () {
-            request(url + 'js/script.js', function (err, res, body) {
-                assert(!err, err);
-                assert.equal(body, 'var foo = 1\n');
-                fs.writeFile(__dirname + '/data/srv12/public/js/script.js'
-                        , 'var bar = 23\n', function (err) {
+            fs.unlink(__dirname + '/data/srv12/compiled/js/script.js', function () {
+                request(url + 'js/script.js', function (err, res, body) {
                     assert(!err, err);
-                    setTimeout(function () {
-                        request(url + 'js/script.js', function (err, res, body) {
-                            assert(!err, err);
-                            assert.equal(body, 'var bar = 23\n');
-                            fs.writeFile(__dirname + '/data/srv12/public/js/script.js'
-                                    , 'var foo = 1\n', function () {
-                                setTimeout(function () {
-                                    request(url + 'js/script.js', function (err, res, body) {
-                                        assert(!err, err);
-                                        assert.equal(body, 'var foo = 1\n');
-                                        close(url);
-                                        done();
-                                    });
-                                }, 100);
+                    assert.equal(body, 'var foo = 1\n');
+                    fs.writeFile(__dirname + '/data/srv12/public/js/script.js'
+                            , 'var bar = 23\n', function (err) {
+                        assert(!err, err);
+                        setTimeout(function () {
+                            request(url + 'js/script.js', function (err, res, body) {
+                                assert(!err, err);
+                                assert.equal(body, 'var bar = 23\n');
+                                fs.writeFile(__dirname + '/data/srv12/public/js/script.js'
+                                        , 'var foo = 1\n', function () {
+                                    setTimeout(function () {
+                                        request(url + 'js/script.js', function (err, res, body) {
+                                            assert(!err, err);
+                                            assert.equal(body, 'var foo = 1\n');
+                                            close(url);
+                                            done();
+                                        });
+                                    }, 100);
+                                });
                             });
-                        });
-                    }, 100);
+                        }, 100);
+                    });
                 });
             });
-        });
         }, 100);
     });
     it('should redirect <=IE8 users to an upgrade page', function (done) {
@@ -270,7 +268,7 @@ describe('Server', function () {
                 request({ url: url, headers: { 'User-Agent': ua3 }}, function (err, res, body) {
                     assert(!err, err);
                     assert.equal('upgrade plz\n', body);
-                    request({ url: url, followRedirect: false, headers: { 'User-Agent': ua3 }}, function (err, res, body) {
+                    request({ url: url, followRedirect: false, headers: { 'User-Agent': ua3 }}, function (err, res) {
                         assert(!err, err);
                         assert.equal(res.headers['x-accel-expires'], 0);
                         close(url);
@@ -285,7 +283,7 @@ describe('Server', function () {
         get(url).get('/', function (request, response) {
             response.render('index');
         });
-        request({ url: url }, function (err, res, body) {
+        request({ url: url }, function (err, res) {
             assert(!err, err);
             assert.equal(res.headers['x-ua-compatible'], 'IE=edge,chrome=1');
             close(url);
@@ -306,9 +304,8 @@ describe('Server', function () {
         });
     });
     it('should send 400 if the url is malformed', function (done) {
-        var url = create('srv14')
-          , app = get(url);
-        request(url + '%e3h', function (err, res, body) {
+        var url = create('srv14');
+        request(url + '%e3h', function (err, res) {
             assert(!err, err);
             assert.equal(res.statusCode, 400);
             close(url);

@@ -34,7 +34,7 @@ clean:
 	@rm -rf coverage
 
 lint: check-deps
-	@./node_modules/.bin/jshint -c ./.jshintrc lib test
+	@./node_modules/.bin/jshint -c ./.jshintrc lib test/*.js
 
 check-deps:
 	@if test ! -d node_modules; then \
