@@ -24,7 +24,7 @@ test: check-deps
 check: test
 
 coverage: check-deps
-	@./node_modules/.bin/istanbul cover \
+	@DISABLE_LOGGING=1 ./node_modules/.bin/istanbul cover \
 		./node_modules/.bin/_mocha -- -R spec
 
 coverage-html: coverage
