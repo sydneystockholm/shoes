@@ -19,6 +19,8 @@
   },
   "devDependencies": {
     "mocha": "latest",
+    "istanbul": "latest",
+    "jshint": "latest",
     "request": "latest"
   }
 }
