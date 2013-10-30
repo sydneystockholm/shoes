@@ -303,14 +303,5 @@ describe('Server', function () {
             });
         });
     });
-    it('should send 400 if the url is malformed', function (done) {
-        var url = create('srv14');
-        request(url + '%e3h', function (err, res) {
-            assert(!err, err);
-            assert.equal(res.statusCode, 400);
-            close(url);
-            done();
-        });
-    });
 });
 
