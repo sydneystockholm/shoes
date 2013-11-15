@@ -8,9 +8,9 @@
   },
   "engines": { "node": ">= 0.8" },
   "dependencies": {
-    "express": ">= 3.4.2",
-    "nunjucks": "0.1.10",
-    "less": ">= 1.4.2",
+    "express": "~ 3",
+    "nunjucks": "~ 1",
+    "less": "~ 1.5",
     "uglify-js": "~ 2",
     "mkdirp": "*",
     "sslog": "*",
