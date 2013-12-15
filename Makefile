@@ -1,45 +1,35 @@
-REPORTER?=dot
-ifdef V
-	REPORTER=spec
-endif
+NPM=./node_modules/.bin
 
-ifdef TEST
-	T=--grep '${TEST}'
-	REPORTER=list
-endif
+test: dependencies
+	@$(NPM)/_mocha --reporter $(if $(or $(TEST),$(V)),spec,dot) \
+		--slow 600 --timeout 2000 \
+		--grep '$(TEST)'
+
+lint: dependencies
+	@$(NPM)/jshint --config .jshintrc lib test/*.js
 
 dependencies:
-	@npm install -s -d
-
-deps: dependencies
-
-test: check-deps
-	@mkdir -p ./test/tmp
-	@DISABLE_LOGGING=1 ./node_modules/mocha/bin/mocha \
-		--reporter ${REPORTER} \
-		-s 200 \
-		-t 2000 $T
-	@rm -rf ./test/tmp
-
-check: test
-
-coverage: check-deps
-	@DISABLE_LOGGING=1 ./node_modules/.bin/istanbul cover \
-		./node_modules/.bin/_mocha -- -R spec
-
-coverage-html: coverage
-	@open coverage/lcov-report/index.html
-
-clean:
-	@rm -rf coverage
-
-lint: check-deps
-	@./node_modules/.bin/jshint -c ./.jshintrc lib test/*.js
-
-check-deps:
-	@if test ! -d node_modules; then \
-		echo "Installing npm dependencies.."; \
-		npm install -d; \
+	@if [ ! -d node_modules ]; then \
+		echo -n "Installing dependencies.."; \
+		npm install --silent >/dev/null; \
+		echo "done."; \
 	fi
 
-.PHONY: test dependencies coverage clean lint
+coverage: dependencies
+	@$(NPM)/istanbul cover $(NPM)/_mocha -- --reporter spec
+
+coverage-html: coverage
+	@if [ -f coverage/lcov-report/index.html ]; then \
+		open coverage/lcov-report/index.html; \
+	fi;
+
+clean:
+	@rm -rf coverage compiled/*
+
+distclean: clean
+	@rm -rf node_modules
+
+check: test
+deps: dependencies
+
+.PHONY: dependencies clean
